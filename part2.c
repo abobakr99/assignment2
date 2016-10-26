@@ -1,4 +1,3 @@
-
 #include <stdio.h>          /* printf()                 */
 #include <stdlib.h>         /* exit(), malloc(), free() */
 #include <sys/types.h>      /* key_t, sem_t, pid_t      */
@@ -30,44 +29,34 @@ void appendProcess(struct Process proc ){
 	}
 }
 
-bool inputFileReader(void){
+void inputFileReader(void){
 	FILE *ifp;
 	arrayIndex = 0;
-	char *line = NULL;
-	size_t len = 0;
-	_ssize_t read;
 	struct Process temp;
-	
 	ifp = fopen("Input.txt", "r");
-	if(ifp == NULL) exit(EXIT_FAILURE);
-	
-	while((read = getline(&line, &len, ifp) != -1)){
-		// extract data from each line and assign it to a temp struct to pass it for appending into the array.
-		// we chose "/" as identifier between each data.
-		//like for example, 1/0/22 corresponds to pid/arrivalTime/ExecutionTime
+	if(ifp == NULL) exit(1);
+	int pid, arr, exe;
+	while(fscanf(ifp, "%d %d %d", &pid, &arr, &exe) != EOF){
 		
-		
-		
-		
-		
+		// we assign the pid and arrival time and execution time for a process then append it in array of processes.
+		temp->pid = pid; 
+		temp->arrivalTime = arr; 
+		temp->CpuTime = exe;
+		//---------sending temp to appendProcess---------//
+		appendProcess(temp);
+
 	}
-	return false;
+	free(temp);
+	fclose(ifp);
+	
 	// lastly we do qsort. to sort out the array for their priority.
 }
 
 
 void main(void){
-	//File *ifp, *ofp; // input/output file pointers
+	
 	
 
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	//ofp = fopen("Output", "w");
 }
