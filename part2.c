@@ -25,6 +25,9 @@ struct Process{
 	int turnaroundTime;
 	
 };
+
+
+
 //-----------------------------------------------------------------------//
 						// Global Variables.
 //-----------------------------------------------------------------------//
@@ -36,6 +39,9 @@ char ready[] = "Ready State.";
 char running[] = "Running State.";
 char new[] = "New State.";
 char terminated[] = "Terminated State.";
+//-----------------------------------------------------------------------//
+//					      	Subroutines
+//----------------------------------------------------------------------//
 
 void appendProcess(struct Process proc ){
 	if(arrayIndex != MAX-1){
@@ -53,9 +59,9 @@ void removeFirst(){
 	arrayIndex--;
 }
 
-void sleep(unsigned milliseconds){
+//void sleep(unsigned milliseconds){
 	//usleep(milliseconds*1000);
-}
+//}
 
 void inputFileReader(void){
 	FILE *ifp;
@@ -117,8 +123,8 @@ void procSimulator(){
 		procArray[i].newState = running;
 		
 		print_table(procArray);
-		for(int j =0; j<(procArray[i].CpuTime * 1000);j++)
-		
+		fflush(stdout);
+		Sleep(procArray[i].CpuTime*100); // to be able to see the transitions.
 
 		procArray[i].oldState = procArray[i].newState;
 		procArray[i].newState = terminated;
