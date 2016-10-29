@@ -15,7 +15,6 @@
 #define TERMINATED 4
 
 
-
 //-----------------------------------------------------------------------//
 
 
@@ -26,7 +25,7 @@ struct Process{
 	int IOfrequency;
 	int IOduration;	
 	int waitingTime;
-        char *oldState;
+    char *oldState;
 	char *newState;
 };
 
@@ -38,6 +37,8 @@ struct Process{
 int arrayIndex; // also refers to how many elements in the Array (Processes in array).
 struct Process procArray[MAX]; // global variable so i dont have to pass them into parameter.
 FILE *ofp;
+int currentProcIndex = 0;
+struct Process currentProcess;
 
 char waiting[] = "Waiting State.";
 char ready[] = "Ready State.";
@@ -61,7 +62,11 @@ void appendProcess(struct Process proc ){
 		printf("Process Queue is Full.");
 	}
 }
-
+void removefromArray(int in){
+	for(int i = in; i<arrayIndex; i++) {
+ 		procArray[i] = procArray[i+1];
+	}
+}
 
 void inputFileReader(void){
        
@@ -95,18 +100,22 @@ void inputFileReader(void){
 /*
 slectNextPro() chooses the first processes from the reay queue 
 */
- struct Process selectNextPro(){
-      
-       struct  Process p = procArray[0]; 
-               p.oldState =ready;
-	            p.newState = running;
-                arrayIndex--;
-       //printf(" sate  : %s\n", p.newState );
-	for(int i = 0; i<arrayIndex; i++) {
-          procArray[i] = procArray[i+1];
+ struct Process * selectNextPro(int t){
+     for(int i = 0; i<arrayIndex; i++){
+		struct  Process p = procArray[i];
+		if(p.arrivalTime <= t){
+	       p.oldState =ready;
+	       p.newState = running;
+		   currentProcess = p;
+	       arrayIndex--;
+	      //---------------------------//
+		   removefromArray(i);
+	      // -------------------------//
+	        return &currentProcess;
+		}
 	}
-       
-        return p;
+	return NULL;
+	
 }
 
 void calculateWaitingTime (){
@@ -125,15 +134,13 @@ void calculateWaitingTime (){
       printf(" waiting times pid 3 %d \n",  procArray[2].waitingTime);
 }
 
-void printProcess(struct Process p){
+void printProcess(struct Process *p, int t){
         
-        int TransitionTime , waitingTime;
+ 
         
-        printf("\n\t%d\t\t%d\t%s\t%s\n",p.waitingTime,p.pid,p.oldState,p.newState);
-                
-                p.oldState =running;
-	        p.newState =terminated ;
-        printf("\n\t%d\t\t%d\t%s\t%s\n", p.CpuTime + p.waitingTime,p.pid,p.oldState,p.newState);
+        printf("\n\t%d\t\t%d\t%s\t%s\n",t /*p->waitingTime*/,p->pid,p->oldState,p->newState);
+               
+       // printf("\n\t%d\t\t%d\t%s\t%s\n", p->CpuTime + p->arrivalTime,p->pid,p->oldState,p->newState);
                 
 	
 
@@ -141,19 +148,29 @@ void printProcess(struct Process p){
 
 
 void run (){
-	  struct Process p ;
+	  struct Process * p ;
      calculateWaitingTime ();
      printf("\n Transition Time       pid \t Old state\t New state");
       
    
   ///int waitingTime=0,TransitionTime=0;
-    
+    int timeUnit = 0;
    while (( arrayIndex > 0)) {
-   	
-      p = selectNextPro();
+   	 if((p = selectNextPro(timeUnit))!= NULL){
+      
      
-      printProcess(p);
-        
+      		printProcess(p, timeUnit);
+			int k = timeUnit;
+			while(timeUnit != (k + p->CpuTime)){
+				timeUnit++;
+				
+			}
+            p->oldState =running;
+	        p->newState =terminated ;
+			printProcess(p, timeUnit);
+        }else{
+			timeUnit++;
+		}
     // sleep(1); 
      
   } 
