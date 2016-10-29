@@ -160,24 +160,23 @@ void run (){
       
      
       		printProcess(p, timeUnit);
-			int k = timeUnit;
-			while(1){
+		int k = timeUnit; int g = 1;
+		while(timeUnit != (k+p->IOfrequency)){
 				timeUnit++;
 				p->CpuTime = p->CpuTime - 1;
-				if(timeUnit != (k + p->iof)){
-					p->oldState = p->newState;
-					p->newState = waiting;
-					printProcess(p,timeUnit);
-					p->oldState = p->newState;
-					p->newState = ready;
-					printProcess(p,timeUnit);
-					break;
-				}
 			}
 			if(p->CpuTime == 0){
-	            p->oldState =p->newState;
-		        p->newState =terminated ;
+	                     p->oldState =p->newState;
+		             p->newState =terminated ;
 				printProcess(p, timeUnit);
+			}else{
+			  p->oldState = p->newState;
+			  p->newState = waiting;
+			  printProcess(p, timeUnit);
+			  p->oldState = p->newState;
+			  p->newState = ready;
+			  printProcess(p, timeUnit);
+			  appendProcess(currentProcess);
 			}
         }else{
 			timeUnit++;
@@ -198,4 +197,3 @@ int main(void){
 		
 		return 1;
 }
-
