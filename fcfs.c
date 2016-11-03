@@ -24,7 +24,8 @@ struct Process{
 	int CpuTime;
 	int IOfrequency;
 	int IOduration;	
-	int waitingTime;
+	int waitTime;
+  int turnaround;
     char *oldState;
 	char *newState;
 };
@@ -45,6 +46,7 @@ char ready[] = "Ready State.";
 char running[] = "Running State.";
 char new[] = "New State.";
 char terminated[] = "Terminated State.";
+int turnaroundtotal, waitTimetotal;
 //-----------------------------------------------------------------------//
 //             FUNCTION PROTOTYPES 
 
@@ -73,16 +75,32 @@ void inputFileReader(void){
 	FILE *ifp;
 
 	struct Process temp;
-	ifp = fopen("Input.txt", "r");
-	if(ifp == NULL) exit(1);
-	int pid, arr, exe;
+	ifp = fopen("Input_fcfs.txt", "r");
+	if(ifp == NULL){
+	  printf("Error opening file!\n");
+	  exit(1);
+	}
+	
+	int pid, arr, exe,i=0;
 	while(fscanf(ifp, "%d %d %d", &pid, &arr, &exe) != EOF){
 		
 		// we assign the pid and arrival time and execution time for a process then append it in array of processes.
          
 		temp.pid = pid; 
 		temp.arrivalTime = arr; 
-                 
+		if(i==0){
+		  i++;
+		  temp.waitTime = 0;
+		  temp.turnaround = exe;
+		}else{
+
+		  temp.turnaround = procArray[i-1].turnaround + exe;
+
+		  temp.waitTime = procArray[i-1].turnaround - temp.arrivalTime;
+
+		  i++;
+		  
+		}
 		temp.CpuTime = exe;
 		temp.IOduration = 1;
 		temp.IOfrequency = 1;
@@ -118,30 +136,23 @@ slectNextPro() chooses the first processes from the reay queue
 	
 }
 
-void calculateWaitingTime (){
-           int i; 
-           
-        procArray[0].waitingTime = 0;
-         printf(" waiting times %d \n",  procArray[0].waitingTime);
-         
-     for (i =1; i< arrayIndex ; i++) {
-     
-          
-         procArray[i].waitingTime = procArray[i-1].waitingTime + procArray[i-1].CpuTime;
-         printf(" waiting times %d  %d \n", procArray[i].pid, procArray[i].waitingTime);
+void printWaitingTime (){
+           int i;  
+     for (i =0; i< arrayIndex ; i++) {
+       fprintf(ofp," pid %d waiting %d turnaround %d \n", procArray[i].pid, procArray[i].waitTime,
+		procArray[i].turnaround);
         
      }
-      printf(" waiting times pid 3 %d \n",  procArray[2].waitingTime);
+      
 }
 
 void printProcess(struct Process *p, int t){
         
  
         
-        printf("\n\t%d\t\t%d\t%s\t%s\n",t /*p->waitingTime*/,p->pid,p->oldState,p->newState);
+  fprintf(ofp, "\n\t%d\t\t%d\t%s\t%s\n",t /*p->waitingTime*/,p->pid,p->oldState,p->newState);
                
-       // printf("\n\t%d\t\t%d\t%s\t%s\n", p->CpuTime + p->arrivalTime,p->pid,p->oldState,p->newState);
-                
+                     
 	
 
 }    
@@ -149,8 +160,8 @@ void printProcess(struct Process *p, int t){
 
 void run (){
 	  struct Process * p ;
-     calculateWaitingTime ();
-     printf("\n Transition Time       pid \t Old state\t New state");
+     printWaitingTime ();
+     fprintf(ofp, "\n Transition Time       pid \t Old state\t New state\n");
       
    
   ///int waitingTime=0,TransitionTime=0;
@@ -180,10 +191,19 @@ void run (){
 int main(void){
         
       
-	// --------------- asking to read input file -------//
+                // asking to read input file
 		inputFileReader(); // after this all process are stored in global access procArray.
 		printf("How many process read: %d\n", arrayIndex);
+		// open output file
+		ofp = fopen("Output_fcfs.txt", "w");
+		if(ofp == NULL){
+		  printf("Error opening file!\n");
+		  exit(1);
+		}
+		// run the simulation
 		run();
+		// close the output file
+		fclose(ofp);
 		
 		return 1;
 }

@@ -1,0 +1,17 @@
+ pid 1 waiting 0 turnaround 7 
+ pid 2 waiting 5 turnaround 11 
+ pid 3 waiting 8 turnaround 12 
+
+ Transition Time       pid 	 Old state	 New state
+
+	0		1	Ready State.	Running State.
+
+	7		1	Running State.	Terminated State.
+
+	7		2	Ready State.	Running State.
+
+	11		2	Running State.	Terminated State.
+
+	11		3	Ready State.	Running State.
+
+	12		3	Running State.	Terminated State.
